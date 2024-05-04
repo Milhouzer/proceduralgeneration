@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Milhouzer.MarchingSquares;
+using Milhouzer.ProceduralGeneration;
 using UnityEngine;
 
 namespace Milhouzer.ProceduralGeneration.Demo
