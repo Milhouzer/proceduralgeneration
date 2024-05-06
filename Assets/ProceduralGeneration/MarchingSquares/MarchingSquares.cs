@@ -81,7 +81,6 @@ namespace Milhouzer.ProceduralGeneration
                     float d = Mathf.PerlinNoise((offset.x + i - 0.5f) * scale, (offset.y + j + 0.5f) * scale); // Top left
 
                     values[i,j] = MarchSquare(a, b, c, d, threshold);
-                    Debug.Log("(" + a + "," + b + "," + c + "," + d + ")" + values[i,j]);
                 }
             }
 

@@ -72,25 +72,16 @@ namespace Milhouzer.WorldGeneration
         }
     }
 
-    public static class WorldMaker
-    {
-        public static Chunk MakeChunk(int size, Vector3 location)
-        {
-            Chunk chunk = new Chunk(size, location);
-
-            return chunk;
-        }
-    }
-
     [System.Serializable]
     public class WorldSettings
     {
         public int CHUNK_SIZE = 32;
+        public float CHUNK_HEIGHT = 1;
         public float SCALE = 0.05f;
         public float THRESHOLD = 0.55f;
-        public Vector3 WORLD_CENTER = Vector3.zero;
-        public TilesLookupTable TILES_LOOKUP_TABLE;
-        public TilesMeshLookupTable MESH_LOOKUP_TABLE;
+        public TilesMeshLookupTable TILES_BOT_PARTS_LOOKUP_TABLE;
+        public TilesMeshLookupTable TILES_MID_PARTS_LOOKUP_TABLE;
+        public TilesMeshLookupTable TILES_TOP_PARTS_LOOKUP_TABLE;
 
         public GameObject CHUNK_PREVIEW_MODEL;
         public Material[] TILE_MATERIALS;

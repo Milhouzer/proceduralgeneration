@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Milhouzer.ProceduralGeneration;
 using System;
+using System.Text;
 
 namespace Milhouzer.WorldGeneration
 {
@@ -17,27 +18,21 @@ namespace Milhouzer.WorldGeneration
         public Vector3 Location { get; }
 
         public string Hash { get; }
+        public string Name { get; }
 
         public Chunk(int size, Vector3 location)
         {
             Size = size;
             Location = location;
+            Name = $"chk_{location.ToString().PadLeft(4, '0')}{location.y.ToString().PadLeft(4, '0')}{location.z.ToString().PadLeft(4, '0')}";
             Hash = GenerateHash();
         }
 
         // Generate hash for the chunk based on its location
         private string GenerateHash()
         {
-            string sizeHex = Size.ToString("X");
-
-            // Convert the Vector3 location components to hexadecimal format
-            string xHex = BitConverter.ToInt32(BitConverter.GetBytes(Location.x), 0).ToString("X");
-            string yHex = BitConverter.ToInt32(BitConverter.GetBytes(Location.y), 0).ToString("X");
-            string zHex = BitConverter.ToInt32(BitConverter.GetBytes(Location.z), 0).ToString("X");
-
-            string hash = string.Concat(sizeHex , xHex , yHex , zHex);
-
-            return hash;
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(Name);
+            return BitConverter.ToString(bytes).Replace("-", "");
         }
 
         internal virtual void Load()
@@ -46,19 +41,12 @@ namespace Milhouzer.WorldGeneration
             uint[,] vals = MarchingSquares.MarchSquares(new Vector2(Location.x, Location.z), Size, Size, World.Singleton.GenerationSettings.SCALE, World.Singleton.GenerationSettings.THRESHOLD);
 
             List<CombineInstance> instances = new List<CombineInstance>();
-            CombineInstance instance = new();
-            MeshFilter meshFilter;
 
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    meshFilter = World.Singleton.GenerationSettings.MESH_LOOKUP_TABLE[(int)vals[i, j]];
-                    instance.mesh = meshFilter.sharedMesh;
-                    instance.transform = Matrix4x4.Translate(new Vector3(i, 0, j)) * Matrix4x4.Rotate(Quaternion.Euler(-90f, 0, 0));
-
-                    instances.Add(instance);
-                    Debug.Log(instances.Count);
+                    instances.Add(WorldMaker.MakeTileMesh((int)vals[i,j], i, j, World.Singleton.GenerationSettings.CHUNK_HEIGHT));
                 }
             }
 
@@ -70,6 +58,7 @@ namespace Milhouzer.WorldGeneration
             
             Mesh mesh = new Mesh();
             mesh.CombineMeshes(instances.ToArray(), true, true);
+            mesh.Optimize();
             
             var filter = go.AddComponent<MeshFilter>();
             filter.sharedMesh = mesh;
