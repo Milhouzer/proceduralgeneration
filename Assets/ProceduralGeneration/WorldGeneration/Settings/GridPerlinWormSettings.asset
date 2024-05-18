@@ -18,7 +18,7 @@ MonoBehaviour:
   Weight: 0.5
   Range: 10
   Frequency: 0.005
-  Length: 5000
+  Length: 300
   Converge: 0
   SwitchDirection: 1
   SwitchDirectionPeriod: 15
