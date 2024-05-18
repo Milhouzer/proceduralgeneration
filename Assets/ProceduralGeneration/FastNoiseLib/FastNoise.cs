@@ -78,6 +78,32 @@ public class FastNoise
 		CalculateFractalBounding();
 	}
 
+	public FastNoise(FastNoiseSettings settings)
+	{
+		m_seed = settings.seed;
+		m_frequency = settings.frequency;
+		m_interp = settings.interp;
+		m_noiseType = settings.noiseType;
+
+		m_octaves = settings.octaves;
+		m_lacunarity = settings.lacunarity;
+		m_gain = settings.gain;
+		m_fractalType = settings.fractalType;
+
+		m_fractalBounding = settings.fractalBounding;
+
+		m_cellularDistanceFunction = settings.cellularDistanceFunction;
+		m_cellularReturnType = settings.cellularReturnType;
+		m_cellularNoiseLookup = settings.cellularNoiseLookup;
+		m_cellularDistanceIndex0 = settings.cellularDistanceIndex0;
+		m_cellularDistanceIndex1 = settings.cellularDistanceIndex1;
+		m_cellularJitter = settings.cellularJitter;
+
+		m_gradientPerturbAmp = settings.gradientPerturbAmp;
+		
+		CalculateFractalBounding();
+	}
+
 	// Returns a 0 float/double
 	public static FN_DECIMAL GetDecimalType() { return 0; }
 

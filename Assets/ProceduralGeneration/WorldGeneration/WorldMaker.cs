@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Milhouzer.WorldGeneration
+namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     public static class WorldMaker
     {

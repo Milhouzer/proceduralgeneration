@@ -1,25 +1,50 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using Milhouzer.ProceduralGeneration;
+using ProceduralToolkit.FastNoiseLib;
 using UnityEngine;
 
-namespace Milhouzer.WorldGeneration
+namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     public class World : MonoBehaviour
     {
         public static World Singleton;
 
         [SerializeField]
-        private WorldSettings generationSettings;
-        public WorldSettings GenerationSettings => generationSettings;
+        private WorldGenerationSettings generationSettings;
+        public WorldGenerationSettings GenerationSettings => generationSettings;
+
+        
+        /// <TODO>
+        /// Make river factory
+        /// </TODO>
+        [SerializeField]
+        private GridPerlinWormSettings wormSettings;
+        GridPerlinWorm worm;
+        Coroutine wormMaker;
+        Transform wormParent;
+
 
         private Vector3 currentPosition = Vector3.zero;
         private ChunkPreview chunkPreview;
 
+        [SerializeField]
+        private FastNoiseSettings groundNoiseSettings;
+        public FastNoise GroundNoise { get; private set; }
+        [SerializeField]
+        private FastNoiseSettings riverNoiseSettings;
+        public FastNoise RiverNoise { get; private set; }
+
         private void Awake() 
         {
+            groundNoiseSettings.OnPropertyChanged += GroundNoiseSettingsChanged;
+            riverNoiseSettings.OnPropertyChanged += RiverNoiseSettingsChanged;
+            GroundNoise = new FastNoise(groundNoiseSettings);
+            RiverNoise = new FastNoise(riverNoiseSettings);
             Singleton = this;
+        }
 
+        void Start()
+        {
             chunkPreview = new ChunkPreview(generationSettings.CHUNK_SIZE, currentPosition);
         }
 
@@ -54,9 +79,63 @@ namespace Milhouzer.WorldGeneration
                 chunk.Load();
             }
 
+            if(Input.GetKeyUp(KeyCode.W))
+            {
+                StartProcess();
+            }
+
             if(inputChanged)
             {
                 DrawChunkPreview();
+            }
+        }
+
+        private void OnDestroy() {
+            groundNoiseSettings.OnPropertyChanged -= GroundNoiseSettingsChanged;
+            riverNoiseSettings.OnPropertyChanged -= RiverNoiseSettingsChanged;
+        }
+
+        private void GroundNoiseSettingsChanged()
+        {
+            GroundNoise = new FastNoise(groundNoiseSettings);
+        }
+
+        private void RiverNoiseSettingsChanged()
+        {
+            RiverNoise = new FastNoise(riverNoiseSettings);
+        }
+
+        public void StartProcess()
+        {
+            if(wormMaker != null)
+            {
+                StopCoroutine(wormMaker);
+                wormMaker = null;
+                Destroy(wormParent.gameObject);
+            }else
+            {
+                GameObject go = new GameObject();
+                wormParent = go.transform;
+                worm = new GridPerlinWorm(wormSettings, riverNoiseSettings);
+                wormMaker = StartCoroutine(Process());
+            }
+        }
+
+        IEnumerator Process()
+        {
+            Debug.Log("Execute process");
+            Vector2 next = wormSettings.StartingPoint;
+            int i = 0;
+            while(i < wormSettings.Length)
+            {
+                next = worm.MoveNext();
+                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                go.transform.position = new Vector3((int)next.x, 0, (int)next.y);
+                go.transform.localScale = wormSettings.Scale;
+                go.transform.parent = wormParent;
+
+                i++;
+                yield return new WaitForSecondsRealtime(wormSettings.Frequency);
             }
         }
 
@@ -70,20 +149,5 @@ namespace Milhouzer.WorldGeneration
             chunkPreview = new ChunkPreview(generationSettings.CHUNK_SIZE, currentPosition * generationSettings.CHUNK_SIZE);
             chunkPreview.Load();
         }
-    }
-
-    [System.Serializable]
-    public class WorldSettings
-    {
-        public int CHUNK_SIZE = 32;
-        public float CHUNK_HEIGHT = 1;
-        public float SCALE = 0.05f;
-        public float THRESHOLD = 0.55f;
-        public TilesMeshLookupTable TILES_BOT_PARTS_LOOKUP_TABLE;
-        public TilesMeshLookupTable TILES_MID_PARTS_LOOKUP_TABLE;
-        public TilesMeshLookupTable TILES_TOP_PARTS_LOOKUP_TABLE;
-
-        public GameObject CHUNK_PREVIEW_MODEL;
-        public Material[] TILE_MATERIALS;
     }
 }
