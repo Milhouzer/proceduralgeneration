@@ -8,10 +8,7 @@ namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     public class GridPerlinWorm
     {
-        /// <TODO>
-        /// Use this noise instead of Mathf.PerlinNoise
-        /// </TODO>
-        public FastNoise Noise { get; private set; }
+        private FastNoise Noise;
 
         GridPerlinWormSettings Settings;
 
@@ -22,9 +19,10 @@ namespace Milhouzer.ProceduralGeneration.WorldGeneration
         private int count = 0;
         private int currentLength = 0;
 
-        public GridPerlinWorm(GridPerlinWormSettings settings)
+        public GridPerlinWorm(GridPerlinWormSettings settings, FastNoiseSettings noiseSettings)
         {
             Settings = settings;
+            Noise = new FastNoise(noiseSettings);
             currentDirection = GetStartingDirection();
         }
 
@@ -51,15 +49,6 @@ namespace Milhouzer.ProceduralGeneration.WorldGeneration
             return currentPosition;
         }
 
-        private static float NextFloat(System.Random random)
-        {
-            double mantissa = (random.NextDouble() * 2.0) - 1.0;
-            // choose -149 instead of -126 to also generate subnormal floats (*)
-            double exponent = Math.Pow(2.0, random.Next(-126, 128));
-            return (float)(mantissa * exponent);
-        }
-
-
         private Vector2 GetStartingDirection()
         {
             float theta = UnityEngine.Random.Range(-1f, 1f);
@@ -70,8 +59,8 @@ namespace Milhouzer.ProceduralGeneration.WorldGeneration
 
         private Vector2 GetNoiseDirection()
         {
-            float theta = SumNoise(currentPosition.x, currentPosition.y);
-            theta = RangeMap(theta, 0, 1, - switchDirection * Settings.Range, switchDirection * Settings.Range);
+            float theta = World.Singleton.RiverNoise.GetNoise(currentPosition.x, currentPosition.y);
+            theta = RangeMap(theta, -1, 1, - switchDirection * Settings.Range, switchDirection * Settings.Range);
             currentDirection = (Quaternion.AngleAxis(theta, Vector3.forward) * currentDirection).normalized;
 
             // Reset direction periodically to prevent drift
@@ -87,28 +76,6 @@ namespace Milhouzer.ProceduralGeneration.WorldGeneration
             }
 
             return currentDirection;
-        }
-        
-
-        public float SumNoise(float x, float y)
-        {
-            float amplitude = 1;
-            float frequency = Settings.NoiseFrequency;
-            float noiseSum = 0;
-            float amplitudeSum = 0;
-            for (int i = 0; i < Settings.Octaves; i++)
-            {
-                /// <TODO>
-                /// 
-                /// </TODO>
-                noiseSum += amplitude * Mathf.PerlinNoise(currentLength * frequency, 0.5f);
-                amplitudeSum += amplitude;
-                amplitude *= Settings.Persistance;
-                frequency *= 2;
-
-            }
-            return noiseSum / amplitudeSum; // set range back to 0-1
-
         }
 
         public float RangeMap(float inputValue, float inMin, float inMax, float outMin, float outMax)

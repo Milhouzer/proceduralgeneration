@@ -1,8 +1,7 @@
-using Milhouzer.ProceduralGeneration;
 using ProceduralToolkit.FastNoiseLib;
 using UnityEngine;
 
-namespace Milhouzer.WorldGeneration
+namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     [CreateAssetMenu(fileName = "WorldGenerationSettings", menuName = "Milhouzer/WorldGeneration/WorldGenerationSettings", order = 0)]
     public class WorldGenerationSettings : ScriptableObject 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Milhouzer.MarchingSquares
+namespace Milhouzer.Demo
 {
     /// <summary>
     /// Just a tesselated plane generator.

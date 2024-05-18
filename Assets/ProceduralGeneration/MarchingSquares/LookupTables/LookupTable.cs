@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Milhouzer.MarchingSquares
+namespace Milhouzer.ProceduralGeneration
 {
     public abstract class LookupTable<T> : ScriptableObject 
     {

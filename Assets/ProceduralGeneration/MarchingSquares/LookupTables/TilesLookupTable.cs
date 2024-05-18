@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Milhouzer.MarchingSquares
+namespace Milhouzer.ProceduralGeneration
 {
     [CreateAssetMenu(fileName = "TilesLookupTable", menuName = "MarchingSquares/TilesLookupTable", order = 0)]
     public class TilesLookupTable : LookupTable<GameObject>

@@ -1,12 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Milhouzer.ProceduralGeneration;
 using System;
-using System.Text;
 using ProceduralToolkit.FastNoiseLib;
 
-namespace Milhouzer.WorldGeneration
+namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     public class Chunk
     {
@@ -33,7 +30,7 @@ namespace Milhouzer.WorldGeneration
             
             map = new float[Size + 1, Size + 1];
 
-            FastNoise noise = World.Singleton.groundNoise;
+            FastNoise noise = World.Singleton.GroundNoise;
             for (int i = 0; i < Size + 1; i++)
             {
                 for (int j = 0; j < Size + 1; j++)
@@ -71,7 +68,7 @@ namespace Milhouzer.WorldGeneration
 
                     instances.Add(WorldMaker.MakeTileMesh(v, i, j, World.Singleton.GenerationSettings.CHUNK_HEIGHT));
                     
-                    MakeVegetation(v, i, j);
+                    // MakeVegetation(v, i, j);
 
                     // We assume that maximas are created the same way they are red. 
                     // if(i == maximas[0].x && j == maximas[0].y)

@@ -1,11 +1,9 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using Milhouzer.ProceduralGeneration;
-using Milhouzer.ProceduralGeneration.WorldGeneration;
 using ProceduralToolkit.FastNoiseLib;
 using UnityEngine;
 
-namespace Milhouzer.WorldGeneration
+namespace Milhouzer.ProceduralGeneration.WorldGeneration
 {
     public class World : MonoBehaviour
     {
@@ -15,16 +13,36 @@ namespace Milhouzer.WorldGeneration
         private WorldGenerationSettings generationSettings;
         public WorldGenerationSettings GenerationSettings => generationSettings;
 
+        
+        /// <TODO>
+        /// Make river factory
+        /// </TODO>
+        [SerializeField]
+        private GridPerlinWormSettings wormSettings;
+        GridPerlinWorm worm;
+        Coroutine wormMaker;
+        Transform wormParent;
+
+
         private Vector3 currentPosition = Vector3.zero;
         private ChunkPreview chunkPreview;
 
-        public FastNoise groundNoise;
+        [SerializeField]
+        private FastNoiseSettings groundNoiseSettings;
+        public FastNoise GroundNoise { get; private set; }
+        [SerializeField]
+        private FastNoiseSettings riverNoiseSettings;
+        public FastNoise RiverNoise { get; private set; }
 
         private void Awake() 
         {
-            groundNoise = new FastNoise(1337);
+            groundNoiseSettings.OnPropertyChanged += GroundNoiseSettingsChanged;
+            riverNoiseSettings.OnPropertyChanged += RiverNoiseSettingsChanged;
+            GroundNoise = new FastNoise(groundNoiseSettings);
+            RiverNoise = new FastNoise(riverNoiseSettings);
             Singleton = this;
         }
+
         void Start()
         {
             chunkPreview = new ChunkPreview(generationSettings.CHUNK_SIZE, currentPosition);
@@ -71,12 +89,21 @@ namespace Milhouzer.WorldGeneration
                 DrawChunkPreview();
             }
         }
-        
 
-        public GridPerlinWormSettings wormSettings;
-        GridPerlinWorm worm;
-        Coroutine wormMaker;
-        Transform wormParent;
+        private void OnDestroy() {
+            groundNoiseSettings.OnPropertyChanged -= GroundNoiseSettingsChanged;
+            riverNoiseSettings.OnPropertyChanged -= RiverNoiseSettingsChanged;
+        }
+
+        private void GroundNoiseSettingsChanged()
+        {
+            GroundNoise = new FastNoise(groundNoiseSettings);
+        }
+
+        private void RiverNoiseSettingsChanged()
+        {
+            RiverNoise = new FastNoise(riverNoiseSettings);
+        }
 
         public void StartProcess()
         {
@@ -89,7 +116,7 @@ namespace Milhouzer.WorldGeneration
             {
                 GameObject go = new GameObject();
                 wormParent = go.transform;
-                worm = new GridPerlinWorm(wormSettings);
+                worm = new GridPerlinWorm(wormSettings, riverNoiseSettings);
                 wormMaker = StartCoroutine(Process());
             }
         }
@@ -122,23 +149,5 @@ namespace Milhouzer.WorldGeneration
             chunkPreview = new ChunkPreview(generationSettings.CHUNK_SIZE, currentPosition * generationSettings.CHUNK_SIZE);
             chunkPreview.Load();
         }
-    }
-
-    [System.Serializable]
-    public class WorldSettings
-    {
-        public int SEED = 1337;
-        public int CHUNK_SIZE = 32;
-        public float CHUNK_HEIGHT = 1;
-        public float SCALE = 0.05f;
-        public float THRESHOLD = 0.55f;
-        public float VEGETATION_PROBABILITY = 0.5f;
-        public TilesMeshLookupTable TILES_BOT_PARTS_LOOKUP_TABLE;
-        public TilesMeshLookupTable TILES_MID_PARTS_LOOKUP_TABLE;
-        public TilesMeshLookupTable TILES_TOP_PARTS_LOOKUP_TABLE;
-        public TilesMeshLookupTable VEGETATION_LOOKUP_TABLE;
-
-        public GameObject CHUNK_PREVIEW_MODEL;
-        public Material[] TILE_MATERIALS;
     }
 }

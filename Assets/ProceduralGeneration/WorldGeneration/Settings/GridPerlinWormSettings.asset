@@ -12,17 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e60fdce4ae12524ebb56b91e969b055, type: 3}
   m_Name: GridPerlinWormSettings
   m_EditorClassIdentifier: 
-  Seed: 1337
   Scale: {x: 1, y: 1, z: 1}
   StartingPoint: {x: 0, y: 0}
   ConvergencePoint: {x: 150, y: 30}
   Weight: 0.5
-  Range: 15
+  Range: 10
   Frequency: 0.005
   Length: 5000
   Converge: 0
   SwitchDirection: 1
-  SwitchDirectionPeriod: 5
-  NoiseFrequency: 1
-  Octaves: 4
-  Persistance: 0.33
+  SwitchDirectionPeriod: 15
